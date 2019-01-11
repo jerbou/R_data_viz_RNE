@@ -1,3 +1,4 @@
+
 # ==== 00 charge lib -----------------------------------------------------------
 library("doBy", lib.loc="C:/R-3.5.0/library")
 library("gridExtra", lib.loc="C:/R-3.5.0/library")
@@ -85,11 +86,67 @@ df_cons_dep_bfc$fonction <- "Conseiller departementaux"
 # is.data.frame(df_cons_mun_bfc)
 # is.data.frame(df_marires_bfc)
 
-testo <- rbind.fill(df_marires_bfc,df_cons_mun_bfc) # met a la suite des colonnes pas super super pour le restructuration
+testo <- rbind.fill(df_marires_bfc,df_cons_mun_bfc, df_cons_epci_bfc, df_cons_dep_bfc) # met a la suite des colonnes pas super super pour le restructuration
+View(testo)
+dim(testo)
 
-
+# testo[16] <- ifelse(testo[13]=="maires" , "maires", testo[16])
+testo$fonction_true <- NA
+testo$fonction_true <- ifelse(testo[13]=="maires" , "maire", testo$fonction_true)
+testo$fonction_true <- ifelse(testo[16]=="Conseiller departementaux" & is.na(testo$fonction_true), "Conseiller departemental", testo$fonction_true)
+testo$fonction_true <- ifelse(testo[16]=="conseiller municipale" & is.na(testo$fonction_true) , "conseiller municipale", testo$fonction_true)
+testo$fonction_true <- ifelse(testo[16]=="conseiller communautaire" & is.na(testo$fonction_true) , "conseiller communautaire", testo$fonction_true)
+# ifelse(a %% 2 == 0,"even","odd")
+View(testo)
 # melt_maires <- melt(df_marires_bfc, id=c("code_dept", "lib_dept", "code_insee", "lib_com", "nom_elu", "prenom_elu", "sexe", "date_naiss", "fontion"))
 
+# creation de la colonne age
+names(testo)
+testo$date_naiss <- as.Date(testo$date_naiss,format="%d/%m/%Y")
+# lubridate::year(df0$Date.de.naissance)
+testo$age <-  as.numeric(format(Sys.Date(), "%Y")) - as.numeric(lubridate::year(testo$date_naiss))
+testo$age_class <- cut(testo$age, breaks = seq(0,130,5))
+#View(testo)
+names(testo)
+
+# datavize pyramide
+
+testo_c1 <- count(testo, c('sexe', 'age_class'))
+testo_c1$freq <- ifelse(testo_c1$sexe == "M" , -1*testo_c1$freq, testo_c1$freq)
+
+g1bis <- ggplot(testo_c1, aes(x=age_class, y=freq , fill=sexe)) +
+  geom_bar(data=subset(testo_c1,sexe =="M"), stat="identity", width=1, colour="grey20") +
+  geom_bar(data=subset(testo_c1,sexe =="F"), stat="identity", width=1, colour="grey20") +
+  coord_flip() # + expand_limits(x=c(20,100), y=c(-150, 150)) +
+  scale_y_continuous(breaks = seq(-1500,1500,100), labels=abs(seq(-1500,1500,100))) +  scale_colour_manual(values = c(A = "green")) + theme_minimal() + 
+  ggtitle("Pyramides des ages des maires") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(fill = "Sexe", caption = "RNE data.gouv.fr") + ylab("Nombre") +
+  theme(legend.justification=c(1,0), legend.position=c(1,0)) 
+
+g1bis
+
+testo_c2 <- count(testo, c('fonction_true','sexe', 'age_class' ))
+testo_c2$freq <- ifelse(testo_c2$sexe == "M" , -1*testo_c2$freq, testo_c2$freq)
+
+testo_c2$fonction_true <- as.character(testo_c2$fonction_true)
+names(testo_c2)
+
+ggplot(testo_c2, aes(x=age_class, y=freq, fill=sexe)) +
+  geom_bar(data=subset(testo_c2,sexe =="M"), stat="identity", width=1, colour="navy") +
+  geom_bar(data=subset(testo_c2,sexe =="F"), stat="identity", width=1, colour="darkred") +
+  coord_flip() + facet_grid(~fonction_true)
+
+ggplot(testo_c2, aes(x=age_class, y=freq, fill=fonction_true)) +
+  geom_bar(data=subset(testo_c2,sexe =="M"), stat="identity", width=1, colour="navy") +
+  geom_bar(data=subset(testo_c2,sexe =="F"), stat="identity", width=1, colour="darkred") +
+  coord_flip() + facet_grid(~fonction_true, scales = "free")
+
+ggplot(testo_c2, aes(x=age_class, y=freq, fill=fonction_true)) +
+  geom_bar(data=subset(testo_c2,sexe =="M"), stat="identity", width=1, colour="navy") +
+  geom_bar(data=subset(testo_c2,sexe =="F"), stat="identity", width=1, colour="darkred") + coord_flip() +
+  labs(fill = "Sexe", caption = "RNE data.gouv.fr") + ylab("Nombre") +
+  theme(legend.justification=c(1,0), legend.position=c(1,0))
 
 # testo <- rbind.fill.matrix(df_marires_bfc,df_cons_mun_bfc)
 dim(df_marires_bfc)
@@ -138,6 +195,20 @@ g1 <- ggplot(df2, aes(x=age, y=freq, fill= Code.sexe, tooltip = paste("age :", a
   theme(legend.justification=c(1,0), legend.position=c(1,0)) 
 
 g1
+
+g1 <- ggplot(df2, aes(x=age, y=freq, fill= Code.sexe, tooltip = paste("age :", age, "nombre", abs(freq), sep=" "))) +
+  geom_bar(data=subset(df2,Code.sexe =="M"), stat="identity", width=1, colour="grey20") +
+  geom_bar(data=subset(df2,Code.sexe =="F"), stat="identity", width=1, colour="grey20") +
+  scale_x_continuous(breaks = seq(0,100,5)) +
+  coord_flip() + expand_limits(x=c(20,100), y=c(-150, 150)) +
+  scale_y_continuous(breaks = seq(-1500,1500,100), labels=abs(seq(-1500,1500,100))) +  scale_colour_manual(values = c(A = "green")) + theme_minimal() + 
+  ggtitle("Pyramides des ages des maires") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(fill = "Sexe", caption = "RNE data.gouv.fr") + ylab("Nombre") +
+  theme(legend.justification=c(1,0), legend.position=c(1,0)) 
+
+g1
+
 
 # a la sauce interactive ... TO COMPLTETE COMMENT PUBLIER UN HTML ONLINE GITHUB desktop.
 # https://pages.github.com/
@@ -208,3 +279,4 @@ ggplot(df_bfc, aes(x=age, y=freq, fill= Code.sexe, color=Code.sexe)) +
   geom_bar(data=subset(df_bfc,Code.sexe =="F"), stat="identity", width=1) +
   scale_x_continuous(breaks = seq(0,100,10)) + gghighlight() + facet_wrap(~ Code.du.département..Maire., nrow=4) + coord_flip() + theme_bw() +
   scale_y_continuous(breaks = seq(-150,150,10), labels=abs(seq(-150,150,10)))
+
