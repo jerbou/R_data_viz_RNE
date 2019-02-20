@@ -93,38 +93,38 @@ ggiraph(code = print(g2))
   # geom_vline(xintercept = median(df0$age), linetype="dashed", color = "darkred", size = 1) + 
   # geom_vline(xintercept = mean(df0$age), linetype="dashed", color = "darkgreen", size = 1) +  scale_colour_manual(values = c(A = "green"))
   # geom_text(aes(x=20, label="moyenne", y=0), colour="darkgreen", angle=0) +
-  # geom_text(aes(x=22, label="médiane", y=0), colour="darkred", angle=0) 
+  # geom_text(aes(x=22, label="mÃ©diane", y=0), colour="darkred", angle=0) 
 
 # geom_text(aes(x=mean(df0$age-2), label="moyenne", y=-1300), colour="darkgreen", angle=0) +
 # +  stat_bin(breaks = seq(-1500,1500,100))
 
 
 # == boxplot sdelon la categorie pro' ====
-g3 <- ggplot(df0, aes(y=age, x=Code.du.département..Maire., fill= Code.du.département..Maire.)) + geom_boxplot() + theme_minimal() +  theme(legend.position="none") +
-   labs(title = "Boxplot des ages par departements" , x= "département", caption = "RNE data.gouv.fr") + theme(plot.title = element_text(hjust = 0.5))
+g3 <- ggplot(df0, aes(y=age, x=Code.du.dÃ©partement..Maire., fill= Code.du.dÃ©partement..Maire.)) + geom_boxplot() + theme_minimal() +  theme(legend.position="none") +
+   labs(title = "Boxplot des ages par departements" , x= "dÃ©partement", caption = "RNE data.gouv.fr") + theme(plot.title = element_text(hjust = 0.5))
   guides(col = guide_legend(nrow  = 20)) 
 theme(legend.justification=c(0,1), legend.position=c(0.1,0.1))  
-facet_wrap(~Code.du.département..Maire.) + 
+facet_wrap(~Code.du.dÃ©partement..Maire.) + 
 +theme(axis.title.x=element_blank(), axis.text=element_text(size=8))
 
 # Nombre de maires par CSP
-ggplot(df0, aes(x= fct_rev(fct_infreq(Libellé.de.la.profession)))) +  geom_bar(stat="count") +
-  coord_flip() + ggtitle("Catégorie socio pro des Maires") + theme(plot.title = element_text(hjust = 0.5))+
-  xlab("Catégorie Socio-Pro") + ylab("nombre")
+ggplot(df0, aes(x= fct_rev(fct_infreq(LibellÃ©.de.la.profession)))) +  geom_bar(stat="count") +
+  coord_flip() + ggtitle("CatÃ©gorie socio pro des Maires") + theme(plot.title = element_text(hjust = 0.5))+
+  xlab("CatÃ©gorie Socio-Pro") + ylab("nombre")
 
-ggplot(df0, aes(x= fct_rev(fct_infreq(Libellé.de.la.profession)))) +  geom_bar(stat="count", aes(fill=Code.sexe)) +
-  coord_flip() + ggtitle("Catégorie socio pro des Maires") + labs(fill = "Sexe") + 
-  ylab("Catégorie Socio-Pro") + xlab("nombre") + theme(legend.justification=c(1,0), legend.position=c(0.80,0.05))
+ggplot(df0, aes(x= fct_rev(fct_infreq(LibellÃ©.de.la.profession)))) +  geom_bar(stat="count", aes(fill=Code.sexe)) +
+  coord_flip() + ggtitle("CatÃ©gorie socio pro des Maires") + labs(fill = "Sexe") + 
+  ylab("CatÃ©gorie Socio-Pro") + xlab("nombre") + theme(legend.justification=c(1,0), legend.position=c(0.80,0.05))
 
 
 names(df0)
 # Le nombre de maires par departement
-ggplot(df0, aes(x= fct_rev(fct_infreq(Code.du.département..Maire.)))) +  geom_bar(stat="count", aes(fill=Code.sexe)) +
-   ggtitle("Nombre de maires par département") + labs(fill = "Sexe") + 
-  ylab("Nombre de maires") + xlab("Département") + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.justification=c(1,0), legend.position=c(0.80,0.75))
+ggplot(df0, aes(x= fct_rev(fct_infreq(Code.du.dÃ©partement..Maire.)))) +  geom_bar(stat="count", aes(fill=Code.sexe)) +
+   ggtitle("Nombre de maires par dÃ©partement") + labs(fill = "Sexe") + 
+  ylab("Nombre de maires") + xlab("DÃ©partement") + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.justification=c(1,0), legend.position=c(0.80,0.75))
 
-# pyramide des ages par départements
-df_dep <- count(df0, c('Code.du.département..Maire.', 'Code.sexe', 'age'))
+# pyramide des ages par dÃ©partements
+df_dep <- count(df0, c('Code.du.dÃ©partement..Maire.', 'Code.sexe', 'age'))
 df_dep$freq <- ifelse(df_dep$Code.sexe == "M" , -1*df_dep$freq, df_dep$freq)
 
 
@@ -132,7 +132,7 @@ ggplot(df_dep, aes(x=age, y=freq, fill= Code.sexe, color=Code.sexe)) +
   geom_bar(data=subset(df_dep,Code.sexe =="M"), stat="identity", width=1) +
   geom_bar(data=subset(df_dep,Code.sexe =="F"), stat="identity", width=1) +
   scale_x_continuous(breaks = seq(0,100,5)) +
-  coord_flip() + expand_limits(x=c(20,100), y=c(-150, 150)) +  facet_wrap(~ Code.du.département..Maire., scales="free") +
+  coord_flip() + expand_limits(x=c(20,100), y=c(-150, 150)) +  facet_wrap(~ Code.du.dÃ©partement..Maire., scales="free") +
   scale_y_continuous(breaks = seq(-1500,1500,100), labels=abs(seq(-1500,1500,100))) + theme_minimal() +
   ggtitle("Pyramides des ages des maires") +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -148,12 +148,33 @@ ggplot(df_dep, aes(x=age, y=freq, fill= Code.sexe, color=Code.sexe)) +
     gghighlight()
   p + facet_wrap(~ Species)
   
-  df_bfc <- subset(df_dep, Code.du.département..Maire.==21 | Code.du.département..Maire.== 25 | Code.du.département..Maire.== 39 | Code.du.département..Maire.== 58 | Code.du.département..Maire.== 70 | Code.du.département..Maire.== 71 | Code.du.département..Maire.== 89 | Code.du.département..Maire.== 90)
+  df_bfc <- subset(df_dep, Code.du.dÃ©partement..Maire.==21 | Code.du.dÃ©partement..Maire.== 25 | Code.du.dÃ©partement..Maire.== 39 | Code.du.dÃ©partement..Maire.== 58 | Code.du.dÃ©partement..Maire.== 70 | Code.du.dÃ©partement..Maire.== 71 | Code.du.dÃ©partement..Maire.== 89 | Code.du.dÃ©partement..Maire.== 90)
   
 ggplot(df_bfc, aes(x=age, y=freq, fill= Code.sexe, color=Code.sexe)) +
     geom_bar(data=subset(df_bfc,Code.sexe =="M"), stat="identity", width=1) +
     geom_bar(data=subset(df_bfc,Code.sexe =="F"), stat="identity", width=1) +
-    scale_x_continuous(breaks = seq(0,100,10)) + gghighlight() + facet_wrap(~ Code.du.département..Maire., nrow=4) + coord_flip() + theme_bw() +
+    scale_x_continuous(breaks = seq(0,100,10)) + gghighlight() + facet_wrap(~ Code.du.dÃ©partement..Maire., nrow=4) + coord_flip() + theme_bw() +
   scale_y_continuous(breaks = seq(-150,150,10), labels=abs(seq(-150,150,10)))
   
   
+# la solution la plus elegante avec ggiraph
+
+g1 <- ggplot(df2, aes(x=age, y=freq, fill= Code.sexe, data_id = as.character(age), tooltip = paste("age :", age, "nombre", abs(freq), sep=" "))) +
+  geom_bar(data=subset(df2,Code.sexe =="M"), stat="identity", width=1, colour="grey20") +
+  geom_bar(data=subset(df2,Code.sexe =="F"), stat="identity", width=1, colour="grey20") +
+  scale_x_continuous(breaks = seq(0,100,5)) +
+  coord_flip() + expand_limits(x=c(20,100), y=c(-150, 150)) +
+  scale_y_continuous(breaks = seq(-1500,1500,100), labels=abs(seq(-1500,1500,100))) +  scale_colour_manual(values = c(A = "green")) + theme_minimal() + 
+  ggtitle("Pyramides des ages des maires de BFC") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(fill = "Sexe", caption = "RNE data.gouv.fr") + ylab("Nombre") +
+  theme(legend.justification=c(1,0), legend.position=c(1,0)) 
+
+g1
+
+# a la sauce interactive ... TO COMPLTETE COMMENT PUBLIER UN HTML ONLINE GITHUB desktop.
+# https://pages.github.com/
+g2 <- g1 +  geom_bar_interactive(stat = "identity")
+g2x <- ggiraph(code = print(g2))
+girafe_options(g2x, opts_tooltip(use_fill = TRUE), opts_toolbar(position = "bottomright", saveaspng = TRUE), opts_zoom(max = 5), opts_hover(css = "fill:linen;r:10pt;"))
+
